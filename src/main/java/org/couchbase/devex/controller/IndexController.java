@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.couchbase.devex.domain.StoredFile;
 import org.couchbase.devex.service.BinaryStoreService;
-import org.couchbase.devex.service.SearchService;
+import org.couchbase.devex.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,15 +28,16 @@ import jakarta.servlet.http.HttpServletResponse;
 public class IndexController {
 
 	@Autowired
-	private SearchService searchService;
+	private FileService fileService;
 
 	@Autowired
 	private BinaryStoreService binaryStoreService;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/files")
 	public String provideUploadInfo(Model model) {
-		List<Map<String, Object>> files = searchService.getFiles();
+		List<Map<String, Object>> files = fileService.getFiles();
 		model.addAttribute("files", files);
+		files.forEach(System.out::println);
 		return "uploadForm";
 	}
 
@@ -68,14 +69,14 @@ public class IndexController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/fulltext")
 	public String fulltextQuery(@ModelAttribute(value = "name") String query, Model model) throws IOException {
-		List<Map<String, Object>> files = searchService.searchFulltextFiles(query);
+		List<Map<String, Object>> files = fileService.searchFiles(query);
 		model.addAttribute("files", files);
 		return "uploadForm";
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "/n1ql")
+	@RequestMapping(method = RequestMethod.POST, value = "/query")
 	public String n1qlQuery(@ModelAttribute(value = "name") String query, Model model) throws IOException {
-		List<Map<String, Object>> files = searchService.searchN1QLFiles(query);
+		List<Map<String, Object>> files = fileService.queryFiles(query);
 		model.addAttribute("files", files);
 		return "uploadForm";
 	}

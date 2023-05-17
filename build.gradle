@@ -20,7 +20,13 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-data-couchbase-reactive'
+	implementation 'com.couchbase.client:java-client:3.4.6'
+    implementation 'co.elastic.clients:elasticsearch-java:8.7.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+	implementation 'org.mongodb:mongodb-driver-sync'
+    implementation 'redis.clients:jedis:4.3.1'
+    implementation 'org.apache.tika:tika-core:2.7.0'
+    implementation 'org.apache.tika:tika-parsers-standard-package:2.7.0'
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.data:spring-data-rest-hal-explorer'

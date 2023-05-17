@@ -1,4 +1,4 @@
-package org.couchbase.devex;
+package org.couchbase.devex.databases.couchbase;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

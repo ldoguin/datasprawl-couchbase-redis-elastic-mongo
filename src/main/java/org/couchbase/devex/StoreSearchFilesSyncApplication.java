@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 @ConfigurationPropertiesScan
 public class StoreSearchFilesSyncApplication {
 
+	
 	@Autowired
 	BinaryStoreConfiguration configuration;
 

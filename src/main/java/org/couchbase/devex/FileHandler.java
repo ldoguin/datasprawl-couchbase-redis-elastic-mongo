@@ -3,9 +3,6 @@ package org.couchbase.devex;
 import java.util.Map;
 
 import org.couchbase.devex.service.BinaryStoreService;
-import org.couchbase.devex.service.SearchService;
-
-
 
 public class FileHandler {
 

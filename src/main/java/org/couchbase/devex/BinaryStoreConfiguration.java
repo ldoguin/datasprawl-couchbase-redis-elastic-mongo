@@ -9,8 +9,22 @@ public class BinaryStoreConfiguration {
 	@Value("${binaryStore.root:upload-dir}")
 	private String binaryStoreRoot;
 
+	@Value("${binaryStore.exiftool.path:C:\\Users\\Laurent Doguin\\scoop\\shims\\exiftool.exe}")
+	private String exifToolPath;
+
+	@Value("${binaryStore.pdfToText.path:/usr/bin/pdftotext}")
+	private String pdfToText;
+
 	public String getBinaryStoreRoot() {
 		return binaryStoreRoot;
+	}
+
+	public String getExifToolPath() {
+		return exifToolPath;
+	}
+
+	public String getPdfToText() {
+		return pdfToText;
 	}
 
 }

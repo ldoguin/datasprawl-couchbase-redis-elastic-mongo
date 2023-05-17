@@ -71,20 +71,20 @@ body {
 				<form class="ui form" method="POST"
 					enctype="application/x-www-form-urlencoded" action="/fulltext">
 					<div class="field">
-						<label>Full Text Query:</label> <input name="name"
-							placeholder="Full Text Term" type="text" />
+						<label>Full Text Search:</label> <input name="name"
+							placeholder="Search Term" type="text" />
 					</div>
 					<input class="ui button" type="submit" value="Fulltext Search" />
 				</form>
 			</div>
 			<div class="six wide column">
 				<form class="ui form" method="POST" enctype="multipart/form-data"
-					action="/n1ql">
+					action="/query">
 					<div class="field">
-						<label>N1QL Query:</label> <input name="name"
-							placeholder="Full Text Term" type="text" />
+						<label>Query:</label> <input name="name"
+							placeholder="Query Part" type="text" />
 					</div>
-					<input class="ui button" type="submit" value="N1QL Ssearch" />
+					<input class="ui button" type="submit" value="Query" />
 				</form>
 			</div>
 		</div>

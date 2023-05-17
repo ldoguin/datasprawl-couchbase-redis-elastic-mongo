@@ -3,16 +3,15 @@ package org.couchbase.devex.service;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Map;
 
 import org.couchbase.devex.BinaryStoreConfiguration;
+import org.couchbase.devex.databases.api.CRUD;
 import org.couchbase.devex.domain.StoredFile;
 import org.couchbase.devex.domain.StoredFileDocument;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.couchbase.client.java.Collection;
-import com.couchbase.client.java.json.JsonObject;
 
 @Service
 public class BinaryStoreService {
@@ -21,16 +20,16 @@ public class BinaryStoreService {
 
 	private BinaryStoreConfiguration configuration;
 
-	private Collection collection;
+	private CRUD crud;
 
 	private DataExtractionService dataExtractionService;
 
 	private SHA1Service sha1Service;
 
-	public BinaryStoreService(BinaryStoreConfiguration configuration, Collection collection,
+	public BinaryStoreService(BinaryStoreConfiguration configuration, CRUD crud,
 			DataExtractionService dataExtractionService, SHA1Service sha1Service) {
 		this.configuration = configuration;
-		this.collection = collection;
+		this.crud = crud;
 		this.dataExtractionService = dataExtractionService;
 		this.sha1Service = sha1Service;
 	}
@@ -40,10 +39,7 @@ public class BinaryStoreService {
 		if (!f.exists()) {
 			return null;
 		}
-		JsonObject doc = collection.get(digest).contentAsObject();
-		if (doc == null)
-			return null;
-		StoredFileDocument fileDoc = new StoredFileDocument(doc);
+		StoredFileDocument fileDoc = crud.read(digest);
 		return new StoredFile(f, fileDoc);
 	}
 
@@ -53,7 +49,7 @@ public class BinaryStoreService {
 			throw new IllegalArgumentException("Can't delete file that does not exist");
 		}
 		f.delete();
-		collection.remove(digest);
+		crud.delete(digest);
 	}
 
 	public void storeFile(String name, MultipartFile uploadedFile) {
@@ -64,17 +60,21 @@ public class BinaryStoreService {
 				BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file2));
 				FileCopyUtils.copy(uploadedFile.getInputStream(), stream);
 				stream.close();
-				JsonObject metadata = dataExtractionService.extractMetadata(file2);
-				metadata.put(StoredFileDocument.BINARY_STORE_DIGEST_PROPERTY, digest);
-				metadata.put("type", StoredFileDocument.COUCHBASE_STORED_FILE_DOCUMENT_TYPE);
-				metadata.put(StoredFileDocument.BINARY_STORE_LOCATION_PROPERTY, name);
-				metadata.put(StoredFileDocument.BINARY_STORE_FILENAME_PROPERTY, uploadedFile.getOriginalFilename());
-				String mimeType = metadata.getString(StoredFileDocument.BINARY_STORE_METADATA_MIMETYPE_PROPERTY);
+				StoredFileDocument document = new StoredFileDocument();
+				Map<String, Object> metadata = dataExtractionService.extractMetadata(file2);
+				document.setBinaryStoreDigest(digest);
+				document.setFileId(digest);
+				document.setBinaryStoreLocation(name);
+				document.setFileSize((Integer)metadata.get(StoredFileDocument.BINARY_STORE_METADATA_SIZE_PROPERTY));
+				document.setBinaryStoreFilename(uploadedFile.getOriginalFilename());
+				String mimeType = (String) metadata.get(StoredFileDocument.BINARY_STORE_METADATA_MIMETYPE_PROPERTY);
+				document.setMIMEType(mimeType);
 				if (MIME_TYPE_PDF.equals(mimeType)) {
 					String fulltextContent = dataExtractionService.extractText(file2);
-					metadata.put(StoredFileDocument.BINARY_STORE_METADATA_FULLTEXT_PROPERTY, fulltextContent);
+					document.setFulltext(fulltextContent);
 				}
-				collection.upsert(digest, metadata);
+				document.setMetadata(metadata);
+				crud.upsert(digest, document);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
